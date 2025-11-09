@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Падающие сердечки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .content {
+            position: relative;
+            z-index: 10;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50vh;
+            transform: translateY(-50%);
+        }
+
+        h1 {
+            font-size: clamp(24px, 5vw, 48px);
+            margin-bottom: 20px;
+            color: #ff6b6b;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        a {
+            color: #ff6b6b;
+        }
+
+        #hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .heart {
+            position: absolute;
+            animation: fall linear infinite;
+            opacity: 0;
+            font-size: 20px;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-50px) translateX(0) rotate(0deg);
+                opacity: 1;
+            }
+            80% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(100vh) translateX(20px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Адаптивные размеры */
+        .heart-small {
+            font-size: 16px;
+            animation-duration: 8s;
+        }
+
+        .heart-medium {
+            font-size: 24px;
+            animation-duration: 12s;
+        }
+
+        .heart-large {
+            font-size: 32px;
+            animation-duration: 16s;
+        }
+
+        /* Цвета сердечек */
+        .heart-red { color: #ff6b6b; }
+        .heart-pink { color: #ff8e8e; }
+        .heart-rose { color: #ffa8a8; }
+        .heart-coral { color: #ff9eb5; }
+        .heart-magenta { color: #ff7aa2; }
+
+        @media (max-width: 768px) {
+            .heart-small { font-size: 14px; }
+            .heart-medium { font-size: 20px; }
+            .heart-large { font-size: 26px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1><a href="index2.html" style="text-decoration: none;">Солнышко<br>Поздравляю с годовщиной<br>нажми на надпись</a></h1>
+    </div>
+    <div id="hearts"></div>
+
+    <script>
+        class HeartRain {
+            constructor() {
+                this.container = document.getElementById('hearts');
+                this.hearts = [];
+                this.maxHearts = 30;
+                this.heartColors = ['heart-red', 'heart-pink', 'heart-rose', 'heart-coral', 'heart-magenta'];
+                this.heartSizes = ['heart-small', 'heart-medium', 'heart-large'];
+                
+                this.init();
+                this.startRain();
+            }
+
+            init() {
+                // Создаем начальные сердечки
+                for (let i = 0; i < this.maxHearts; i++) {
+                    setTimeout(() => this.createHeart(), i * 300);
+                }
+            }
+
+            createHeart() {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = '❤️';
+                
+                // Случайные параметры
+                const sizeClass = this.heartSizes[Math.floor(Math.random() * this.heartSizes.length)];
+                const colorClass = this.heartColors[Math.floor(Math.random() * this.heartColors.length)];
+                const left = Math.random() * 100;
+                const animationDelay = Math.random() * 5;
+                const swing = (Math.random() - 0.5) * 40; // колебание по X
+                
+                // Устанавливаем стили
+                heart.classList.add(sizeClass, colorClass);
+                heart.style.left = `${left}vw`;
+                heart.style.animationDelay = `${animationDelay}s`;
+                heart.style.setProperty('--swing', `${swing}px`);
+                
+                // Добавляем кастомную анимацию для колебаний
+                heart.style.animation = `fall linear ${heart.classList.contains('heart-small') ? 8 : heart.classList.contains('heart-medium') ? 12 : 16}s infinite ${animationDelay}s`;
+                
+                this.container.appendChild(heart);
+                this.hearts.push(heart);
+
+                // Удаляем и создаем новое сердечко после анимации
+                const duration = heart.classList.contains('heart-small') ? 8000 : 
+                               heart.classList.contains('heart-medium') ? 12000 : 16000;
+                
+                setTimeout(() => {
+                    if (heart.parentNode) {
+                        heart.parentNode.removeChild(heart);
+                        this.hearts = this.hearts.filter(h => h !== heart);
+                        this.createHeart();
+                    }
+                }, duration + animationDelay * 1000);
+            }
+
+            startRain() {
+                // Постоянно поддерживаем количество сердечек
+                setInterval(() => {
+                    if (this.hearts.length < this.maxHearts) {
+                        this.createHeart();
+                    }
+                }, 1000);
+            }
+
+            createHeartBurst(x, y, count = 8) {
+                for (let i = 0; i < count; i++) {
+                    setTimeout(() => {
+                        const heart = document.createElement('div');
+                        heart.className = 'heart';
+                        heart.innerHTML = '❤️';
+                        
+                        const sizeClass = this.heartSizes[Math.floor(Math.random() * this.heartSizes.length)];
+                        const colorClass = this.heartColors[Math.floor(Math.random() * this.heartColors.length)];
+                        const burstDuration = Math.random() * 3 + 2;
+                        
+                        heart.classList.add(sizeClass, colorClass);
+                        heart.style.left = `${x}px`;
+                        heart.style.top = `${y}px`;
+                        heart.style.animation = `fall linear ${burstDuration}s forwards`;
+                        heart.style.animationDelay = '0s';
+                        
+                        this.container.appendChild(heart);
+                        
+                        setTimeout(() => {
+                            if (heart.parentNode) {
+                                heart.parentNode.removeChild(heart);
+                            }
+                        }, burstDuration * 1000);
+                    }, i * 150);
+                }
+            }
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            const heartRain = new HeartRain();
+
+            // Дополнительные сердечки при клике
+            document.addEventListener('click', (e) => {
+                heartRain.createHeartBurst(e.clientX, e.clientY, 5);
+            });
+        });
+
+        // Добавляем улучшенную анимацию с колебаниями
+        const improvedStyle = document.createElement('style');
+        improvedStyle.textContent = `
+            @keyframes fall {
+                0% {
+                    transform: translateY(-50px) translateX(0) rotate(0deg) scale(0.8);
+                    opacity: 0;
+                }
+                10% {
+                    opacity: 1;
+                    transform: translateY(0) translateX(0) rotate(0deg) scale(1);
+                }
+                30% {
+                    transform: translateY(30vh) translateX(calc(var(--swing, 0px) * 0.3)) rotate(120deg) scale(1.1);
+                }
+                60% {
+                    transform: translateY(60vh) translateX(calc(var(--swing, 0px) * 0.6)) rotate(240deg) scale(1);
+                }
+                100% {
+                    transform: translateY(100vh) translateX(calc(var(--swing, 0px))) rotate(360deg) scale(0.8);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(improvedStyle);
+    </script>
+</body>
+</html>
